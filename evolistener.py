@@ -47,6 +47,8 @@ import signal
 import json
 
 
+print(sys.argv[0])
+
 os.chdir(os.path.dirname(sys.argv[0]))
 
 #---------------------------------------------------------------------------------------------------
@@ -275,7 +277,7 @@ def setpoint(msg):
       else:
         flag = ""
 
-      display(msg.commandName + cmdNameSuffix,'{0: <22}'.format(zone_name) + '{:>5}'.format(str(zoneSetPoint)) + "  [Zone " + str(zoneId) + "]" + flag)
+      display(msg.commandName + cmdNameSuffix,'{0: <22}'.format(zone_name) + '{:>5}'.format(str(zoneSetPoint)) + "  [Zone " + str(zoneId) + "]" + flag + " ("+msg.source+")")
       # if cmdNameSuffix == "": # Use controller value as main setpoint as it controls the boiler... there is sometimes a difference between the controller and actual device
       postToMqtt(zone_name, "setpoint" + cmdNameSuffix,zoneSetPoint)
       # else:
@@ -379,7 +381,7 @@ def relay_heat_demand(msg):
       topic="RLY UFH"      
     elif typeId == 0xfa:  # Depends on whether it is main controller sending message, or UFH controller
       deviceType = "DHW"
-      topic="DHW"      
+      topic="RLY DHW"      
     elif typeId == 0xfc:    # Boiler relay or possibly broadcast
       deviceType = "Boiler"
       topic = "RLY Boiler"
@@ -417,7 +419,7 @@ def zone_heat_demand(msg):
         if msg.sourceType == DEV_TYPE_UFH:
           if msg.source == msg.destination or zoneId == 0xfc: # Messages from the UFH controller to itself seem always to have zone Id 252 (0xfc) - i.e. relay
             deviceType = "RLY UFH"
-            topic = "RLY UFH"
+            topic = "ZON UFH"
           elif zoneId <=8: # 
             # if destination device is the main touch controller, then then zone Id is that of the matched zone in the main touch controller itself
             # Otherwise, if the destination device is the ufh controller (i.e. message is to itself/broadcast etc), then the zone Id is the ufh controller zone id (i.e. 1 to 8)
@@ -443,13 +445,13 @@ def zone_heat_demand(msg):
           zoneLabel = "UFH Zone"
         elif zoneId == 0xfc:
 	          deviceType = "Boiler Relay"
-	          topic = "RLY Boiler"
+	          topic = "ZON Boiler"
         elif zoneId == 0xfa:
           deviceType = "DHW Relay"
-          topic="DHW"
+          topic="ZON DHW"
         elif zoneId == 0xf9:
           deviceType = "Radiators Relay"  
-          topic="RLY Heating"
+          topic="ZON Heating"
         # elif msg.sourceType == DEV_TYPE_UFH: # TODO.... MAP zones....
         #   deviceType = "UFH Controller"  
         #   topic="UFH Zone"   
