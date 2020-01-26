@@ -59,6 +59,8 @@ if  os.path.isdir(sys.argv[0]):
 VERSION         = "1.9.6"
 CONFIG_FILE     = "evogateway.cfg"
 
+DEBUG = False
+
 # --- Configs/Default
 def getConfig(config,section,name,default):
     if config.has_option(section,name):
@@ -408,7 +410,7 @@ def mqtt_on_log(client, obj, level, string):
     ''' mqtt log event received '''
     if DEBUG:
         display_and_log(SYSTEM_MSG_TAG, "[DEBUG] MQTT log message received. Client: {}, obj: {}, level: {}".format(client, obj, level))
-    display_and_log(SYSTEM_MSG_TAG, "[DEBUG] MQTT log msg: {}".format(string))
+    	display_and_log(SYSTEM_MSG_TAG, "[DEBUG] MQTT log msg: {}".format(string))
 
 
 def mqtt_on_message(client, userdata, msg):
@@ -832,7 +834,7 @@ def relay_heat_demand(msg):
 
     demand_percentage = float(demand)/200*100
     display_data_row(msg, "{:>6.1f}% @ {}".format(demand_percentage, zone_name, "(type id: {})".format(type_id)))
-    mqtt_publish(topic,"heat_demand",demand_percentage)
+    mqtt_publish(topic,"rly_heat_demand",demand_percentage)
 
 
 def zone_heat_demand(msg):
@@ -878,7 +880,7 @@ def zone_heat_demand(msg):
         display_data_row(msg, "{:6.1f}%".format(demand_percentage), zone_id)
 
         if len(topic) > 0:
-            mqtt_publish(topic,"heat_demand",demand_percentage)
+            mqtt_publish(topic,"zon_heat_demand",demand_percentage)
         else:
             display_and_log("DEBUG", "ERROR: Could not post to MQTT as topic undefined")
         i += 4
